@@ -14,16 +14,21 @@ class EnrichmentService:
     def __init__(self) -> None:
         self._figi = OpenFigiService()
         self._finance = FinanceDbService()
+        self._service_map = {
+            "CUSIP": self._figi,
+            "ISIN": self._figi,
+            "FIGI": self._finance,
+        }
 
     async def enrich(self, jobs: MappingRequest) -> List[MapEntry]:
         """Return mappings for each job using the appropriate service."""
         results: List[MapEntry] = []
         for job in jobs.jobs:
+            service = self._service_map.get(job.idType)
+            if not service:
+                continue
             request = MappingRequest(
                 jobs=[MappingJob(idType=job.idType, idValue=job.idValue)]
             )
-            if job.idType in {"CUSIP", "ISIN"}:
-                results.extend(await self._figi.map(request))
-            elif job.idType == "FIGI":
-                results.extend(await self._finance.map(request))
+            results.extend(await service.map(request))
         return results

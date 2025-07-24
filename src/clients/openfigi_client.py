@@ -29,7 +29,6 @@ class OpenFigiClient:
         try:
             resp = await self._client.post(self.BASE_URL, json=payload)
             resp.raise_for_status()
-            data = resp.json()
         except Exception as exc:  # pragma: no cover - network errors
             return [
                 MapEntry(
@@ -40,9 +39,11 @@ class OpenFigiClient:
                 )
             ]
 
+        data = resp.json()
         results: List[MapEntry] = []
         for item in data:
-            if "data" not in item:
+            entries = item.get("data")
+            if not entries:
                 results.append(
                     MapEntry(
                         mappedIdType="FIGI",
@@ -52,13 +53,12 @@ class OpenFigiClient:
                     )
                 )
                 continue
-            for entry in item["data"]:
-                results.append(
-                    MapEntry(
-                        mappedIdType="FIGI",
-                        mappedIdValue=entry.get("figi"),
-                        sources=[self.BASE_URL],
-                    )
+            results.extend(
+                MapEntry(
+                    mappedIdType="FIGI",
+                    mappedIdValue=entry.get("figi"),
+                    sources=[self.BASE_URL],
                 )
-
+                for entry in entries
+            )
         return results
