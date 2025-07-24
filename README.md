@@ -1,6 +1,8 @@
 # Symbol Mapping
 
-This repository contains a simple FastAPI application that exposes a single `GET /` endpoint returning a Hello World message.
+This project implements a small FastAPI service for symbol mapping.  It exposes
+`POST /v1/mappings/{service}` where `{service}` is one of the predefined
+mapping directions such as `cusip2figi` or `figi2isin`.
 
 ## Development
 
