@@ -20,17 +20,7 @@ class EnrichmentService:
 
         results: List[MapEntry] = []
 
-        if request.idType in {"CUSIP", "ISIN"}:
-            figi_entries = await self._figi.map(request)
-            results.extend(figi_entries)
-
-            figi_values = [
-                e.mappedIdValue for e in figi_entries if e.mappedIdValue
-            ]
-            for figi in figi_values:
-                req = MappingRequest(idType="FIGI", idValue=figi)
-                results.extend(await self._finance.map(req))
-        elif request.idType == "FIGI":
-            results.extend(await self._finance.map(request))
+        results.extend(await self._figi.map(request))
+        results.extend(await self._finance.map(request))
 
         return results
