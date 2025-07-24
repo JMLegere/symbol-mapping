@@ -19,12 +19,11 @@ class OpenFigiClient:
     async def close(self) -> None:
         await self._client.aclose()
 
-    async def fetch_mappings(self, jobs: MappingRequest) -> List[MapEntry]:
+    async def fetch_mappings(self, request: MappingRequest) -> List[MapEntry]:
         """Fetch FIGI mappings from the OpenFIGI service."""
 
         payload = [
-            {"idType": f"ID_{job.idType}", "idValue": job.idValue}
-            for job in jobs.jobs
+            {"idType": f"ID_{request.idType}", "idValue": request.idValue}
         ]
         try:
             resp = await self._client.post(self.BASE_URL, json=payload)

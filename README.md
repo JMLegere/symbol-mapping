@@ -1,7 +1,7 @@
 # Symbol Mapping
 
 This project implements a small FastAPI service for identifier enrichment. It
-exposes a single `POST /v1/enrich` endpoint that accepts a list of mapping jobs
+exposes a single `POST /v1/enrich` endpoint that accepts an identifier payload
 and returns mapped identifiers.
 
 ## Development
