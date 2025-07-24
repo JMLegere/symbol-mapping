@@ -2,7 +2,7 @@
 
 from fastapi import FastAPI
 
-from .routers.mapping import router as mapping_router
+from .routers.enrichment import router as enrichment_router
 from .utils.ratelimit_middleware import RateLimitMiddleware
 
 
@@ -13,7 +13,7 @@ def create_app() -> FastAPI:
     application.add_middleware(
         RateLimitMiddleware, max_requests=60, window_seconds=60
     )
-    application.include_router(mapping_router)
+    application.include_router(enrichment_router)
     return application
 
 
