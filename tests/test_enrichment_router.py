@@ -19,7 +19,7 @@ client = TestClient(create_app())
     ],
 )
 def test_enrichment_router(id_type: str, id_value: str) -> None:
-    payload = {"jobs": [{"idType": id_type, "idValue": id_value}]}
+    payload = {"idType": id_type, "idValue": id_value}
     response = client.post("/v1/enrich", json=payload)
     assert response.status_code == 200
     data = response.json()

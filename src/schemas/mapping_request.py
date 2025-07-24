@@ -1,4 +1,4 @@
-from typing import List, Literal
+from typing import Literal
 
 from pydantic import BaseModel
 
@@ -11,10 +11,8 @@ AllowedIdType = Literal[
 ]
 
 
-class MappingJob(BaseModel):
+class MappingRequest(BaseModel):
+    """Request payload for a single identifier."""
+
     idType: AllowedIdType
     idValue: str
-
-
-class MappingRequest(BaseModel):
-    jobs: List[MappingJob]

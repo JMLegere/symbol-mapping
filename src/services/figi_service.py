@@ -10,5 +10,5 @@ class OpenFigiService(MappingService):
     def __init__(self) -> None:
         self.client = OpenFigiClient()
 
-    async def map(self, jobs: MappingRequest) -> List[MapEntry]:
-        return await self.client.fetch_mappings(jobs)
+    async def map(self, request: MappingRequest) -> List[MapEntry]:
+        return await self.client.fetch_mappings(request)

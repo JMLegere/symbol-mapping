@@ -11,8 +11,8 @@ router = APIRouter(prefix="/v1/enrich")
 
 @router.post("", response_model=MappingResponse)
 async def enrich(
-    jobs: MappingRequest,
+    payload: MappingRequest,
     svc: EnrichmentService = Depends(get_enrichment_service),
 ) -> MappingResponse:
-    raw = await svc.enrich(jobs)
+    raw = await svc.enrich(payload)
     return MappingResponse(results=merge_sources(raw))

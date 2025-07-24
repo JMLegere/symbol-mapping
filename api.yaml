@@ -65,7 +65,7 @@ components:
       - mappedIdType
       - sources
       title: MapEntry
-    MappingJob:
+    MappingRequest:
       properties:
         idType:
           type: string
@@ -83,18 +83,8 @@ components:
       required:
       - idType
       - idValue
-      title: MappingJob
-    MappingRequest:
-      properties:
-        jobs:
-          items:
-            $ref: '#/components/schemas/MappingJob'
-          type: array
-          title: Jobs
-      type: object
-      required:
-      - jobs
       title: MappingRequest
+      description: Request payload for a single identifier.
     MappingResponse:
       properties:
         results:

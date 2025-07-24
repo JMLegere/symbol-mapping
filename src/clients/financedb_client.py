@@ -14,25 +14,23 @@ class FinanceDbClient:
     def __init__(self) -> None:
         self._equities = fd.Equities().select()
 
-    async def fetch_mappings(self, jobs: MappingRequest) -> List[MapEntry]:
+    async def fetch_mappings(self, request: MappingRequest) -> List[MapEntry]:
         results: List[MapEntry] = []
-        for job in jobs.jobs:
-            df = self._equities[
-                (self._equities["figi"] == job.idValue)
-                | (self._equities["composite_figi"] == job.idValue)
-                | (self._equities["shareclass_figi"] == job.idValue)
-            ]
-            if df.empty:
-                results.append(
-                    MapEntry(
-                        mappedIdType="CUSIP",
-                        mappedIdValue=None,
-                        sources=[FINANCEDB_SOURCE],
-                        error="No mapping found",
-                    )
+        df = self._equities[
+            (self._equities["figi"] == request.idValue)
+            | (self._equities["composite_figi"] == request.idValue)
+            | (self._equities["shareclass_figi"] == request.idValue)
+        ]
+        if df.empty:
+            results.append(
+                MapEntry(
+                    mappedIdType="CUSIP",
+                    mappedIdValue=None,
+                    sources=[FINANCEDB_SOURCE],
+                    error="No mapping found",
                 )
-                continue
-
+            )
+        else:
             filtered = df[["cusip", "isin"]].dropna(how="all")
             for cusip, isin in filtered.itertuples(index=False):
                 if cusip:
@@ -51,5 +49,4 @@ class FinanceDbClient:
                             sources=[FINANCEDB_SOURCE],
                         )
                     )
-
         return results
