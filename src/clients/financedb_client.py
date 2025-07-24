@@ -1,9 +1,11 @@
 from typing import List
 
 import financedatabase as fd
-
 from ..schemas.mapping_request import MappingRequest
 from ..schemas.mapping_response import MapEntry
+
+
+FINANCEDB_SOURCE = "https://www.jeroenbouma.com/projects/financedatabase"
 
 
 class FinanceDbClient:
@@ -25,7 +27,7 @@ class FinanceDbClient:
                     MapEntry(
                         mappedIdType="CUSIP",
                         mappedIdValue=None,
-                        sources=["https://www.jeroenbouma.com/projects/financedatabase"],
+                        sources=[FINANCEDB_SOURCE],
                         error="No mapping found",
                     )
                 )
@@ -36,7 +38,7 @@ class FinanceDbClient:
                         MapEntry(
                             mappedIdType="CUSIP",
                             mappedIdValue=str(row["cusip"]),
-                            sources=["https://www.jeroenbouma.com/projects/financedatabase"],
+                            sources=[FINANCEDB_SOURCE],
                         )
                     )
                 if row.get("isin"):
@@ -44,7 +46,7 @@ class FinanceDbClient:
                         MapEntry(
                             mappedIdType="ISIN",
                             mappedIdValue=str(row["isin"]),
-                            sources=["https://www.jeroenbouma.com/projects/financedatabase"],
+                            sources=[FINANCEDB_SOURCE],
                         )
                     )
         return results

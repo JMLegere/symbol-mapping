@@ -11,7 +11,9 @@ def create_app(max_requests: int = 60, window_seconds: int = 60) -> FastAPI:
 
     application = FastAPI()
     application.add_middleware(
-        RateLimitMiddleware, max_requests=max_requests, window_seconds=window_seconds
+        RateLimitMiddleware,
+        max_requests=max_requests,
+        window_seconds=window_seconds,
     )
     application.include_router(enrichment_router)
     return application
