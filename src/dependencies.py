@@ -1,9 +1,10 @@
 from fastapi import HTTPException
 
+from .schemas.mapping_type import MappingType
 from .services.base_service import MappingService
+from .services.enrichment_service import EnrichmentService
 from .services.figi_service import OpenFigiService
 from .services.financedb_service import FinanceDbService
-from .schemas.mapping_type import MappingType
 
 
 async def get_mapping_service(service: MappingType) -> MappingService:
@@ -25,3 +26,8 @@ async def get_mapping_service(service: MappingType) -> MappingService:
     if not service_cls:
         raise HTTPException(status_code=400, detail="Unknown service")
     return service_cls()
+
+
+async def get_enrichment_service() -> EnrichmentService:
+    """Return an ``EnrichmentService`` instance."""
+    return EnrichmentService()
