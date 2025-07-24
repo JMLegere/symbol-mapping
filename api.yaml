@@ -1,0 +1,143 @@
+openapi: 3.1.0
+info:
+  title: FastAPI
+  version: 0.1.0
+paths:
+  /v1/mappings/{service}:
+    post:
+      summary: Map Ids
+      operationId: map_ids_v1_mappings__service__post
+      parameters:
+      - name: service
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/MappingType'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MappingRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MappingResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    MapEntry:
+      properties:
+        mappedIdType:
+          type: string
+          title: Mappedidtype
+        mappedIdValue:
+          type: string
+          title: Mappedidvalue
+        sources:
+          items:
+            type: string
+            maxLength: 2083
+            minLength: 1
+            format: uri
+          type: array
+          title: Sources
+      type: object
+      required:
+      - mappedIdType
+      - mappedIdValue
+      - sources
+      title: MapEntry
+    MappingJob:
+      properties:
+        idType:
+          type: string
+          enum:
+          - CUSIP
+          - ISIN
+          - FIGI
+          - FIGI_COMPOSITE
+          - FIGI_SHARE_CLASS
+          title: Idtype
+        idValue:
+          type: string
+          title: Idvalue
+      type: object
+      required:
+      - idType
+      - idValue
+      title: MappingJob
+    MappingRequest:
+      properties:
+        jobs:
+          items:
+            $ref: '#/components/schemas/MappingJob'
+          type: array
+          title: Jobs
+      type: object
+      required:
+      - jobs
+      title: MappingRequest
+    MappingResponse:
+      properties:
+        results:
+          items:
+            $ref: '#/components/schemas/MapEntry'
+          type: array
+          title: Results
+      type: object
+      required:
+      - results
+      title: MappingResponse
+    MappingType:
+      type: string
+      enum:
+      - cusip2figi
+      - cusip2figicomposite
+      - cusip2figishareclass
+      - isin2figi
+      - isin2figicomposite
+      - isin2figishareclass
+      - figi2cusip
+      - figi2isin
+      - figi2figicomposite
+      - figi2figishareclass
+      title: MappingType
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
