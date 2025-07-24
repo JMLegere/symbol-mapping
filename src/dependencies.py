@@ -29,5 +29,5 @@ async def get_mapping_service(service: MappingType) -> MappingService:
 
 
 async def get_enrichment_service() -> EnrichmentService:
-    """Provide an instance of ``EnrichmentService`` for dependency injection."""
+    """Return an ``EnrichmentService`` instance."""
     return EnrichmentService()

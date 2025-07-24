@@ -1,8 +1,8 @@
 # Symbol Mapping
 
-This project implements a small FastAPI service for symbol mapping.  It exposes
-`POST /v1/mappings/{service}` where `{service}` is one of the predefined
-mapping directions such as `cusip2figi` or `figi2isin`.
+This project implements a small FastAPI service for identifier enrichment. It
+exposes a single `POST /v1/enrich` endpoint that accepts a list of mapping jobs
+and returns mapped identifiers.
 
 ## Development
 

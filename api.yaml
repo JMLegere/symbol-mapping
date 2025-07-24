@@ -3,22 +3,16 @@ info:
   title: FastAPI
   version: 0.1.0
 paths:
-  /v1/mappings/{service}:
+  /v1/enrich:
     post:
-      summary: Map Ids
-      operationId: map_ids_v1_mappings__service__post
-      parameters:
-      - name: service
-        in: path
-        required: true
-        schema:
-          $ref: '#/components/schemas/MappingType'
+      summary: Enrich
+      operationId: enrich_v1_enrich_post
       requestBody:
-        required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/MappingRequest'
+        required: true
       responses:
         '200':
           description: Successful Response
@@ -106,20 +100,6 @@ components:
       required:
       - results
       title: MappingResponse
-    MappingType:
-      type: string
-      enum:
-      - cusip2figi
-      - cusip2figicomposite
-      - cusip2figishareclass
-      - isin2figi
-      - isin2figicomposite
-      - isin2figishareclass
-      - figi2cusip
-      - figi2isin
-      - figi2figicomposite
-      - figi2figishareclass
-      title: MappingType
     ValidationError:
       properties:
         loc:

@@ -16,12 +16,14 @@ class EnrichmentService:
         self._finance = FinanceDbService()
 
     async def enrich(self, jobs: MappingRequest) -> List[MapEntry]:
-        """Return mappings for the provided jobs."""
+        """Return mappings for each job using the appropriate service."""
         results: List[MapEntry] = []
         for job in jobs.jobs:
-            single = MappingRequest(jobs=[MappingJob(idType=job.idType, idValue=job.idValue)])
+            request = MappingRequest(
+                jobs=[MappingJob(idType=job.idType, idValue=job.idValue)]
+            )
             if job.idType in {"CUSIP", "ISIN"}:
-                results.extend(await self._figi.map(single))
-            if job.idType == "FIGI":
-                results.extend(await self._finance.map(single))
+                results.extend(await self._figi.map(request))
+            elif job.idType == "FIGI":
+                results.extend(await self._finance.map(request))
         return results
