@@ -43,7 +43,9 @@ components:
           type: string
           title: Mappedidtype
         mappedIdValue:
-          type: string
+          anyOf:
+          - type: string
+          - type: 'null'
           title: Mappedidvalue
         sources:
           items:
@@ -53,10 +55,14 @@ components:
             format: uri
           type: array
           title: Sources
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
       type: object
       required:
       - mappedIdType
-      - mappedIdValue
       - sources
       title: MapEntry
     MappingJob:

@@ -3,3 +3,5 @@ uvicorn
 httpx
 pandas
 pytest-asyncio
+pydantic-settings
+financedatabase
