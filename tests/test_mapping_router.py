@@ -6,9 +6,9 @@ import pytest
 sys.path.append(str(Path(__file__).resolve().parents[1]))  # noqa: E402
 
 from fastapi.testclient import TestClient  # noqa: E402
-from src.main import app  # noqa: E402
+from src.main import create_app  # noqa: E402
 
-client = TestClient(app)
+client = TestClient(create_app())
 
 
 @pytest.mark.parametrize(

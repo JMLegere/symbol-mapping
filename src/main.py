@@ -3,12 +3,16 @@
 from fastapi import FastAPI
 
 from .routers.mapping import router as mapping_router
+from .utils.ratelimit_middleware import RateLimitMiddleware
 
 
 def create_app() -> FastAPI:
     """Construct and configure the FastAPI application."""
 
     application = FastAPI()
+    application.add_middleware(
+        RateLimitMiddleware, max_requests=60, window_seconds=60
+    )
     application.include_router(mapping_router)
     return application
 
