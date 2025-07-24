@@ -15,37 +15,50 @@ class FinanceDbClient:
         self._equities = fd.Equities().select()
 
     async def fetch_mappings(self, request: MappingRequest) -> List[MapEntry]:
-        results: List[MapEntry] = []
-        df = self._equities[
-            (self._equities["figi"] == request.idValue)
-            | (self._equities["composite_figi"] == request.idValue)
-            | (self._equities["shareclass_figi"] == request.idValue)
-        ]
+        """Return mappings for the given identifier."""
+
+        col_map = {
+            "FIGI": "figi",
+            "FIGI_COMPOSITE": "composite_figi",
+            "FIGI_SHARE_CLASS": "shareclass_figi",
+            "CUSIP": "cusip",
+            "ISIN": "isin",
+        }
+
+        column = col_map.get(request.idType)
+        if not column:
+            return []
+
+        search_cols = (
+            [column]
+            if request.idType != "FIGI"
+            else ["figi", "composite_figi", "shareclass_figi"]
+        )
+        mask = False
+        for col in search_cols:
+            mask |= self._equities[col] == request.idValue
+        df = self._equities[mask]
         if df.empty:
-            results.append(
+            return [
                 MapEntry(
-                    mappedIdType="CUSIP",
+                    mappedIdType=request.idType,
                     mappedIdValue=None,
                     sources=[FINANCEDB_SOURCE],
                     error="No mapping found",
                 )
-            )
-        else:
-            filtered = df[["cusip", "isin"]].dropna(how="all")
-            for cusip, isin in filtered.itertuples(index=False):
-                if cusip:
+            ]
+
+        results: List[MapEntry] = []
+        for _, row in df.iterrows():
+            for key, col in col_map.items():
+                if key == request.idType:
+                    continue
+                value = row.get(col)
+                if value:
                     results.append(
                         MapEntry(
-                            mappedIdType="CUSIP",
-                            mappedIdValue=str(cusip),
-                            sources=[FINANCEDB_SOURCE],
-                        )
-                    )
-                if isin:
-                    results.append(
-                        MapEntry(
-                            mappedIdType="ISIN",
-                            mappedIdValue=str(isin),
+                            mappedIdType=key,
+                            mappedIdValue=str(value),
                             sources=[FINANCEDB_SOURCE],
                         )
                     )

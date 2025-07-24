@@ -1,4 +1,4 @@
-from typing import List
+from typing import Dict, Iterable, List
 
 import httpx
 
@@ -8,6 +8,8 @@ from ..config import settings
 
 
 class OpenFigiClient:
+    """Client for the OpenFIGI mapping API."""
+
     BASE_URL = "https://api.openfigi.com/v3/mapping"
 
     def __init__(self) -> None:
@@ -20,10 +22,13 @@ class OpenFigiClient:
         await self._client.aclose()
 
     async def fetch_mappings(self, request: MappingRequest) -> List[MapEntry]:
-        """Fetch FIGI mappings from the OpenFIGI service."""
+        """Return all mappings related to the provided identifier."""
 
         payload = [
-            {"idType": f"ID_{request.idType}", "idValue": request.idValue}
+            {
+                "idType": f"ID_{request.idType}",
+                "idValue": request.idValue,
+            }
         ]
         try:
             resp = await self._client.post(self.BASE_URL, json=payload)
@@ -31,7 +36,7 @@ class OpenFigiClient:
         except Exception as exc:  # pragma: no cover - network errors
             return [
                 MapEntry(
-                    mappedIdType="FIGI",
+                    mappedIdType=request.idType,
                     mappedIdValue=None,
                     sources=[self.BASE_URL],
                     error=str(exc),
@@ -40,24 +45,41 @@ class OpenFigiClient:
 
         data = resp.json()
         results: List[MapEntry] = []
+
+        mapping_fields: Dict[str, str] = {
+            "figi": "FIGI",
+            "compositeFIGI": "FIGI_COMPOSITE",
+            "shareClassFIGI": "FIGI_SHARE_CLASS",
+            "isin": "ISIN",
+            "cusip": "CUSIP",
+        }
+
         for item in data:
-            entries = item.get("data")
+            entries: Iterable[Dict[str, str]] | None = item.get("data")
             if not entries:
                 results.append(
                     MapEntry(
-                        mappedIdType="FIGI",
+                        mappedIdType=request.idType,
                         mappedIdValue=None,
                         sources=[self.BASE_URL],
                         error=item.get("error", "No mapping found"),
                     )
                 )
                 continue
-            results.extend(
-                MapEntry(
-                    mappedIdType="FIGI",
-                    mappedIdValue=entry.get("figi"),
-                    sources=[self.BASE_URL],
-                )
-                for entry in entries
-            )
+
+            for entry in entries:
+                for field, id_type in mapping_fields.items():
+                    value = entry.get(field)
+                    if not value:
+                        continue
+                    if id_type == request.idType and value == request.idValue:
+                        continue
+                    results.append(
+                        MapEntry(
+                            mappedIdType=id_type,
+                            mappedIdValue=value,
+                            sources=[self.BASE_URL],
+                        )
+                    )
+
         return results
