@@ -8,7 +8,7 @@ from src.main import create_app  # noqa: E402
 
 
 def test_global_rate_limit() -> None:
-    client = TestClient(create_app(max_requests=2, window_seconds=10))
+    client = TestClient(create_app(max_requests=2, window_seconds=1000))
     payload = {"jobs": [{"idType": "CUSIP", "idValue": "037833100"}]}
     for _ in range(2):
         response = client.post("/v1/enrich", json=payload)
