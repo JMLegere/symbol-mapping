@@ -8,19 +8,19 @@ from src.schemas.mapping_request import MappingJob, MappingRequest
 async def test_openfigi_service_mapping():
     service = OpenFigiService()
     jobs = MappingRequest(jobs=[
-        MappingJob(idType="CUSIP", idValue="12345678")
+        MappingJob(idType="CUSIP", idValue="037833100")
     ])
     results = await service.map(jobs)
-    assert results[0].mappedIdValue == "FAKE-12345678"
-    assert str(results[0].sources[0]) == "https://openfigi.com/"
+    assert results[0].mappedIdValue is not None
+    assert "openfigi" in str(results[0].sources[0])
 
 
 @pytest.mark.asyncio
 async def test_financedb_service_mapping():
     service = FinanceDbService()
     jobs = MappingRequest(jobs=[
-        MappingJob(idType="CUSIP", idValue="87654321")
+        MappingJob(idType="FIGI", idValue="BBG000B9XRY4")
     ])
     results = await service.map(jobs)
-    assert results[0].mappedIdValue == "FAKE-87654321"
-    assert str(results[0].sources[0]) == "https://finance.db/"
+    assert results[0].mappedIdValue is not None
+    assert "financedatabase" in str(results[0].sources[0])

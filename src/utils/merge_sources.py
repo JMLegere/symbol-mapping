@@ -5,7 +5,11 @@ from ..schemas.mapping_response import MapEntry
 
 def merge_sources(entries: List[MapEntry]) -> List[MapEntry]:
     merged: dict[tuple[str, str], MapEntry] = {}
+    others: List[MapEntry] = []
     for entry in entries:
+        if entry.mappedIdValue is None:
+            others.append(entry)
+            continue
         key = (entry.mappedIdType, entry.mappedIdValue)
         if key not in merged:
             merged[key] = MapEntry(
@@ -17,4 +21,4 @@ def merge_sources(entries: List[MapEntry]) -> List[MapEntry]:
             for src in entry.sources:
                 if src not in merged[key].sources:
                     merged[key].sources.append(src)
-    return list(merged.values())
+    return list(merged.values()) + others
