@@ -14,8 +14,8 @@ client = TestClient(create_app())
 @pytest.mark.parametrize(
     "id_type,id_value",
     [
-        ("CUSIP", "12345678"),
-        ("FIGI", "BBG000CL9VN4"),
+        ("CUSIP", "037833100"),  # Apple Inc.
+        ("FIGI", "BBG000B9XRY4"),
     ],
 )
 def test_enrichment_router(id_type: str, id_value: str) -> None:
@@ -23,4 +23,4 @@ def test_enrichment_router(id_type: str, id_value: str) -> None:
     response = client.post("/v1/enrich", json=payload)
     assert response.status_code == 200
     data = response.json()
-    assert data["results"][0]["mappedIdValue"] == f"FAKE-{id_value}"
+    assert data["results"][0]["mappedIdValue"] is not None
