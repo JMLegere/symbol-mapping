@@ -26,6 +26,33 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /v1/mapticker:
+    post:
+      summary: Map Ticker
+      description: Map ticker/MIC pair to FIGI.
+      operationId: map_ticker_v1_mapticker_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TickerRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/MapEntry'
+                type: array
+                title: Response Map Ticker V1 Mapticker Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
     HTTPValidationError:
@@ -96,6 +123,19 @@ components:
       required:
       - results
       title: MappingResponse
+    TickerRequest:
+      properties:
+        ticker:
+          type: string
+          title: Ticker
+        mic:
+          type: string
+          title: Mic
+      type: object
+      required:
+      - ticker
+      - mic
+      title: TickerRequest
     ValidationError:
       properties:
         loc:

@@ -35,6 +35,43 @@ class OpenFigiClient:
     async def close(self) -> None:
         await self._client.aclose()
 
+    async def _post(self, payload: List[dict]) -> List[dict]:
+        resp = await self._client.post(self.BASE_URL, json=payload)
+        resp.raise_for_status()
+        return resp.json()
+
+    async def _parse(
+        self, data: List[dict], request_type: str, request_value: str
+    ) -> List[MapEntry]:
+        results: List[MapEntry] = []
+        for item in data:
+            entries: Iterable[Dict[str, str]] | None = item.get("data")
+            if not entries:
+                results.append(
+                    MapEntry(
+                        mappedIdType=request_type,
+                        mappedIdValue=None,
+                        sources=[self.BASE_URL],
+                        error=item.get("error", "No mapping found"),
+                    )
+                )
+                continue
+            for entry in entries:
+                for field, id_type in _MAPPING_FIELDS.items():
+                    value = entry.get(field)
+                    if not value or (
+                        id_type == request_type and value == request_value
+                    ):
+                        continue
+                    results.append(
+                        MapEntry(
+                            mappedIdType=id_type,
+                            mappedIdValue=value,
+                            sources=[self.BASE_URL],
+                        )
+                    )
+        return results
+
     async def fetch_mappings(self, request: MappingRequest) -> List[MapEntry]:
         """Return all mappings related to the provided identifier."""
         api_type = self._ID_MAP.get(request.idType)
@@ -50,8 +87,7 @@ class OpenFigiClient:
 
         payload = [{"idType": api_type, "idValue": request.idValue}]
         try:
-            resp = await self._client.post(self.BASE_URL, json=payload)
-            resp.raise_for_status()
+            data = await self._post(payload)
         except Exception as exc:  # pragma: no cover - network errors
             return [
                 MapEntry(
@@ -62,37 +98,13 @@ class OpenFigiClient:
                 )
             ]
 
-        data = resp.json()
-        results: List[MapEntry] = []
+        return await self._parse(data, request.idType, request.idValue)
 
-        mapping_fields = _MAPPING_FIELDS
-
-        for item in data:
-            entries: Iterable[Dict[str, str]] | None = item.get("data")
-            if not entries:
-                results.append(
-                    MapEntry(
-                        mappedIdType=request.idType,
-                        mappedIdValue=None,
-                        sources=[self.BASE_URL],
-                        error=item.get("error", "No mapping found"),
-                    )
-                )
-                continue
-
-            for entry in entries:
-                for field, id_type in mapping_fields.items():
-                    value = entry.get(field)
-                    if not value or (
-                        id_type == request.idType and value == request.idValue
-                    ):
-                        continue
-                    results.append(
-                        MapEntry(
-                            mappedIdType=id_type,
-                            mappedIdValue=value,
-                            sources=[self.BASE_URL],
-                        )
-                    )
-
-        return results
+    async def fetch_ticker_figi(
+        self, ticker: str, exch_code: str
+    ) -> List[MapEntry]:
+        payload = [
+            {"idType": "TICKER", "idValue": ticker, "exchCode": exch_code}
+        ]
+        data = await self._post(payload)
+        return await self._parse(data, "FIGI", ticker)
